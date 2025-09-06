@@ -2,7 +2,10 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ArticleController;
 
+Route::get('/article/create-sample', [ArticleController::class, 'createSample']);
+Route::get('/article/clone/{id}', [ArticleController::class, 'cloneArticle']);
 Route::get('/', function () {
     return view('welcome');
 });
