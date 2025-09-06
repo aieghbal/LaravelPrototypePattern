@@ -1,61 +1,217 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Prototype Design Pattern در لاراول
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<div dir="rtl">
+این ریپوزیتوری یک مثال ساده از پیاده‌سازی **Prototype Pattern** در فریم‌ورک Laravel است.
+</div>
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📌 ایده مثال
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+<div dir="rtl">
+فرض کنید یک سیستم مدیریت مقالات داریم. گاهی لازم است یک مقاله موجود را **کپی (Clone)** کنیم و فقط بخش‌هایی کوچک (مثل عنوان یا تگ‌ها) را تغییر دهیم. در این مواقع، به جای ساختن یک شیء جدید از صفر، می‌توانیم از **Prototype Pattern** استفاده کنیم.
+</div>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ⚙️ مراحل پیاده‌سازی
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. ساخت مدل Article
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+php artisan make:model Article -m
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<div dir="rtl">
+در فایل migration:
+</div>
 
-## Laravel Sponsors
+```php
+Schema::create('articles', function (Blueprint $table) {
+    $table->id();
+    $table->string('title');
+    $table->text('content');
+    $table->string('tags')->nullable();
+    $table->timestamps();
+});
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+<div dir="rtl">
+سپس:
+</div>
 
-### Premium Partners
+```bash
+php artisan migrate
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### 2. تعریف Interface برای Prototype
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+<div dir="rtl">فایل `app/Patterns/Prototype/Prototype.php`:</div>
 
-## Code of Conduct
+```php
+<?php
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+namespace App\Patterns\Prototype;
 
-## Security Vulnerabilities
+interface Prototype
+{
+    public function clone(): self;
+}
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### 3. پیاده‌سازی Prototype در مدل Article
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<div dir="rtl">فایل `app/Models/Article.php`:</div>
+
+```php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use App\Patterns\Prototype\Prototype;
+
+class Article extends Model implements Prototype
+{
+    protected $fillable = ['title', 'content', 'tags'];
+
+    public function clone(): self
+    {
+        return new self([
+            'title'   => $this->title . ' (Copy)',
+            'content' => $this->content,
+            'tags'    => $this->tags,
+        ]);
+    }
+}
+```
+
+---
+
+### 4. ساخت کنترلر برای تست
+
+```bash
+php artisan make:controller ArticleController
+```
+
+<div dir="rtl">در فایل `ArticleController.php`:</div>
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Article;
+
+class ArticleController extends Controller
+{
+    public function createSample()
+    {
+        $article = Article::create([
+            'title'   => 'Prototype Pattern in Laravel',
+            'content' => 'این مقاله درباره Prototype Pattern است...',
+            'tags'    => 'design pattern,laravel,prototype'
+        ]);
+
+        return response()->json($article);
+    }
+
+    public function cloneArticle($id)
+    {
+        $original = Article::findOrFail($id);
+        $copy = $original->clone();
+        $copy->save();
+
+        return response()->json([
+            'original' => $original,
+            'copy'     => $copy
+        ]);
+    }
+}
+```
+
+---
+
+### 5. تعریف Route
+
+<div dir="rtl">در فایل `routes/web.php`:</div>
+
+```php
+use App\Http\Controllers\ArticleController;
+
+Route::get('/article/create-sample', [ArticleController::class, 'createSample']);
+Route::get('/article/clone/{id}', [ArticleController::class, 'cloneArticle']);
+```
+
+---
+
+## 🚀 تست پروژه
+
+<div dir="rtl">
+1. اجرای آدرس `/article/create-sample` → یک مقاله اصلی ایجاد می‌شود.
+2. اجرای آدرس `/article/clone/1` → مقاله با شناسه `1` کلون می‌شود و نسخه جدید آن ذخیره خواهد شد.
+</div>
+
+---
+
+## 🧪 نوشتن تست برای اطمینان از صحت پیاده‌سازی
+
+<div dir="rtl">فایل تست `tests/Feature/PrototypeTest.php`:</div>
+
+```php
+<?php
+
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use App\Models\Article;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+class PrototypeTest extends TestCase
+{
+    use RefreshDatabase;
+
+    /** @test */
+    public function it_can_clone_an_article()
+    {
+        $article = Article::create([
+            'title'   => 'Original Title',
+            'content' => 'Some content',
+            'tags'    => 'laravel,prototype'
+        ]);
+
+        $clone = $article->clone();
+        $clone->save();
+
+        $this->assertDatabaseHas('articles', ['title' => 'Original Title (Copy)']);
+    }
+}
+```
+
+<div dir="rtl">سپس تست را اجرا کنید:</div>
+
+```bash
+php artisan test
+```
+
+---
+
+## 🔑 نکات کلیدی
+
+<div dir="rtl">
+- **Prototype Pattern** زمانی مفید است که:
+  - ساخت یک شیء جدید پرهزینه یا زمان‌بر باشد.
+  - نیاز به کپی‌برداری سریع از نمونه موجود داشته باشیم.
+  - بخواهیم تغییرات جزئی روی نسخه جدید انجام دهیم.
+- با تست نوشتن می‌توانیم مطمئن شویم که کپی‌برداری دقیق و درست انجام شده است.
+</div>
+
+---
+
+<div dir="rtl">
+✅ با این روش می‌توانید در لاراول به راحتی Prototype Pattern را پیاده‌سازی کرده و با تست‌های خودکار از صحت عملکرد آن مطمئن شوید.
+</div>
