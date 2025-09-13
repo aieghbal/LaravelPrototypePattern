@@ -1,30 +1,25 @@
-# Prototype Design Pattern در لاراول
+# Prototype Design Pattern in Laravel
+This repository is a simple example of implementing the Prototype Pattern in the Laravel framework.
 
-<div dir="rtl">
-این ریپوزیتوری یک مثال ساده از پیاده‌سازی **Prototype Pattern** در فریم‌ورک Laravel است.
-</div>
 
 ---
 
-## 📌 ایده مثال
-
-<div dir="rtl">
-فرض کنید یک سیستم مدیریت مقالات داریم. گاهی لازم است یک مقاله موجود را **کپی (Clone)** کنیم و فقط بخش‌هایی کوچک (مثل عنوان یا تگ‌ها) را تغییر دهیم. در این مواقع، به جای ساختن یک شیء جدید از صفر، می‌توانیم از **Prototype Pattern** استفاده کنیم.
-</div>
+## 📌 Example Idea
+Suppose we have a content management system for articles.
+Sometimes we need to clone an existing article and only change small parts (like the title or tags).
+Instead of creating a new object from scratch, we can use the Prototype Pattern.
 
 ---
 
-## ⚙️ مراحل پیاده‌سازی
+## ⚙️ Implementation Steps
 
-### 1. ساخت مدل Article
+### 1.Create the Article Model
 
 ```bash
 php artisan make:model Article -m
 ```
 
-<div dir="rtl">
-در فایل migration:
-</div>
+In the migration file:
 
 ```php
 Schema::create('articles', function (Blueprint $table) {
@@ -35,10 +30,7 @@ Schema::create('articles', function (Blueprint $table) {
     $table->timestamps();
 });
 ```
-
-<div dir="rtl">
-سپس:
-</div>
+Then run:
 
 ```bash
 php artisan migrate
@@ -46,9 +38,8 @@ php artisan migrate
 
 ---
 
-### 2. تعریف Interface برای Prototype
-
-<div dir="rtl">فایل `app/Patterns/Prototype/Prototype.php`:</div>
+### 2. Define the Prototype Interface
+File: app/Patterns/Prototype/Prototype.php
 
 ```php
 <?php
@@ -63,9 +54,8 @@ interface Prototype
 
 ---
 
-### 3. پیاده‌سازی Prototype در مدل Article
-
-<div dir="rtl">فایل `app/Models/Article.php`:</div>
+### 3. Implement Prototype in Article Modele
+File: app/Models/Article.php
 
 ```php
 <?php
@@ -92,13 +82,13 @@ class Article extends Model implements Prototype
 
 ---
 
-### 4. ساخت کنترلر برای تست
+### 4. Create a Controller for Testing
 
 ```bash
 php artisan make:controller ArticleController
 ```
 
-<div dir="rtl">در فایل `ArticleController.php`:</div>
+In ArticleController.php:
 
 ```php
 <?php
@@ -136,9 +126,8 @@ class ArticleController extends Controller
 
 ---
 
-### 5. تعریف Route
-
-<div dir="rtl">در فایل `routes/web.php`:</div>
+### 5. Define Routes
+In routes/web.php:
 
 ```php
 use App\Http\Controllers\ArticleController;
@@ -149,19 +138,14 @@ Route::get('/article/clone/{id}', [ArticleController::class, 'cloneArticle']);
 
 ---
 
-## 🚀 تست پروژه
-
-<div dir="rtl">
-1. اجرای آدرس `/article/create-sample` → یک مقاله اصلی ایجاد می‌شود.
-2. اجرای آدرس `/article/clone/1` → مقاله با شناسه `1` کلون می‌شود و نسخه جدید آن ذخیره خواهد شد.
-</div>
+## 🚀 Test the Project
+1. Visit /article/create-sample → creates a sample article.
+2. Visit /article/clone/1 → clones the article with ID 1 and saves the new copy.
 
 ---
 
-## 🧪 نوشتن تست برای اطمینان از صحت پیاده‌سازی
-
-<div dir="rtl">فایل تست `tests/Feature/PrototypeTest.php`:</div>
-
+## 🧪 Write Tests to Ensure Correct Implementation
+Test file: tests/Feature/PrototypeTest.php
 ```php
 <?php
 
@@ -192,7 +176,7 @@ class PrototypeTest extends TestCase
 }
 ```
 
-<div dir="rtl">سپس تست را اجرا کنید:</div>
+Run the test:
 
 ```bash
 php artisan test
@@ -200,18 +184,17 @@ php artisan test
 
 ---
 
-## 🔑 نکات کلیدی
+## 🔑 Key Points
 
-<div dir="rtl">
-- **Prototype Pattern** زمانی مفید است که:
-  - ساخت یک شیء جدید پرهزینه یا زمان‌بر باشد.
-  - نیاز به کپی‌برداری سریع از نمونه موجود داشته باشیم.
-  - بخواهیم تغییرات جزئی روی نسخه جدید انجام دهیم.
-- با تست نوشتن می‌توانیم مطمئن شویم که کپی‌برداری دقیق و درست انجام شده است.
-</div>
+- ** The Prototype Pattern is useful when:
+  - Creating a new object from scratch is expensive or time-consuming.
+  - You need to quickly copy an existing object.
+  - You want to make small changes on the cloned version.
+- Writing tests ensures that cloning works correctly and accurately.
 
 ---
 
-<div dir="rtl">
-✅ با این روش می‌توانید در لاراول به راحتی Prototype Pattern را پیاده‌سازی کرده و با تست‌های خودکار از صحت عملکرد آن مطمئن شوید.
-</div>
+✅ Using this method, you can easily implement the Prototype Pattern in Laravel and verify its functionality with automated tests.
+
+
+[Persian Version](./README.fa.md)
